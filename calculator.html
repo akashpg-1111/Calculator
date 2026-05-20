@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Calculator</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #001a2e, #002a2a);
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .calculator {
+      background: #00182a;
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.6);
+      width: 320px;
+    }
+
+    .display {
+      background: #002233;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 20px;
+      text-align: right;
+    }
+
+    .expression {
+      color: #2dd4bf;
+      font-size: 14px;
+      min-height: 20px;
+      margin-bottom: 8px;
+    }
+
+    .result {
+      color: #ffffff;
+      font-size: 36px;
+      font-weight: 700;
+      word-break: break-all;
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    button {
+      padding: 18px;
+      border: none;
+      border-radius: 14px;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    button:active { transform: scale(0.93); }
+
+    .btn-num { background: #001020; color: #ffffff; }
+    .btn-num:hover { background: #001e3a; }
+
+    .btn-op { background: #0e7490; color: #ffffff; }
+    .btn-op:hover { background: #0891b2; }
+
+    .btn-eq { background: #2dd4bf; color: #001a2e; }
+    .btn-eq:hover { background: #5eead4; }
+
+    .btn-clear { background: #2dd4bf; color: #001a2e; }
+    .btn-clear:hover { background: #5eead4; }
+
+    .btn-special { background: #002233; color: #2dd4bf; }
+    .btn-special:hover { background: #003344; }
+
+    .span-two { grid-column: span 2; }
+  </style>
+</head>
+<body>
+
+  <div class="calculator">
+    <div class="display">
+      <div class="expression" id="expression"></div>
+      <div class="result" id="result">0</div>
+    </div>
+
+    <div class="buttons">
+      <button class="btn-clear span-two" id="btnAC">AC</button>
+      <button class="btn-special" id="btnDel">⌫</button>
+      <button class="btn-op" data-op="/">÷</button>
+
+      <button class="btn-num" data-num="7">7</button>
+      <button class="btn-num" data-num="8">8</button>
+      <button class="btn-num" data-num="9">9</button>
+      <button class="btn-op" data-op="*">×</button>
+
+      <button class="btn-num" data-num="4">4</button>
+      <button class="btn-num" data-num="5">5</button>
+      <button class="btn-num" data-num="6">6</button>
+      <button class="btn-op" data-op="-">−</button>
+
+      <button class="btn-num" data-num="1">1</button>
+      <button class="btn-num" data-num="2">2</button>
+      <button class="btn-num" data-num="3">3</button>
+      <button class="btn-op" data-op="+">+</button>
+
+      <button class="btn-num" data-num="0">0</button>
+      <button class="btn-num" data-num=".">.</button>
+      <button class="btn-special" id="btnPercent">%</button>
+      <button class="btn-eq" id="btnEq">=</button>
+    </div>
+  </div>
+
+  <script>
+    let firstNum = '';
+    let secondNum = '';
+    let operator = '';
+    let resultShown = false;
+
+    const resultEl = document.getElementById('result');
+    const expressionEl = document.getElementById('expression');
+
+    function updateDisplay(value) {
+      resultEl.textContent = value;
+    }
+
+    document.querySelectorAll('[data-num]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const val = btn.getAttribute('data-num');
+        if (resultShown) { firstNum = ''; resultShown = false; }
+        if (operator === '') {
+          if (val === '.' && firstNum.includes('.')) return;
+          firstNum += val;
+          updateDisplay(firstNum);
+        } else {
+          if (val === '.' && secondNum.includes('.')) return;
+          secondNum += val;
+          updateDisplay(secondNum);
+        }
+      });
+    });
+
+    document.querySelectorAll('[data-op]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (firstNum === '') return;
+        operator = btn.getAttribute('data-op');
+        expressionEl.textContent = firstNum + ' ' + btn.textContent;
+        secondNum = '';
+        resultShown = false;
+      });
+    });
+
+    document.getElementById('btnEq').addEventListener('click', () => {
+      if (firstNum === '' || secondNum === '' || operator === '') return;
+      let a = parseFloat(firstNum);
+      let b = parseFloat(secondNum);
+      let answer = 0;
+
+      if (operator === '+') answer = a + b;
+      else if (operator === '-') answer = a - b;
+      else if (operator === '*') answer = a * b;
+      else if (operator === '/') {
+        if (b === 0) {
+          updateDisplay('Error');
+          expressionEl.textContent = '';
+          firstNum = ''; secondNum = ''; operator = '';
+          return;
+        }
+        answer = a / b;
+      }
+
+      answer = parseFloat(answer.toFixed(10));
+      expressionEl.textContent = firstNum + ' ' + operator + ' ' + secondNum + ' =';
+      updateDisplay(answer);
+      firstNum = String(answer);
+      secondNum = '';
+      operator = '';
+      resultShown = true;
+    });
+
+    document.getElementById('btnAC').addEventListener('click', () => {
+      firstNum = ''; secondNum = ''; operator = '';
+      resultShown = false;
+      updateDisplay('0');
+      expressionEl.textContent = '';
+    });
+
+    document.getElementById('btnDel').addEventListener('click', () => {
+      if (operator === '') {
+        firstNum = firstNum.slice(0, -1);
+        updateDisplay(firstNum || '0');
+      } else {
+        secondNum = secondNum.slice(0, -1);
+        updateDisplay(secondNum || '0');
+      }
+    });
+
+    document.getElementById('btnPercent').addEventListener('click', () => {
+      if (operator === '') {
+        firstNum = String(parseFloat(firstNum) / 100);
+        updateDisplay(firstNum);
+      } else {
+        secondNum = String(parseFloat(secondNum) / 100);
+        updateDisplay(secondNum);
+      }
+    });
+  </script>
+
+</body>
+</html>
