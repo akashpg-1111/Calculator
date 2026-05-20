@@ -23,9 +23,4 @@ A simple calculator built using HTML, CSS, and JavaScript.
 1. Download the project
 2. Open calculator.html in your browser
 
-## Project Screenshot
-
-## Screenshot
-
-![Calculator Screenshot](screenshot.png)
 
